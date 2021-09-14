@@ -58,56 +58,54 @@ describe("CoursesService", () => {
     req.flush(findCourseById(courseId));
   });
 
-  it("should save course with changes", () => {
-    const changes: Partial<Course> = {
+  describe('SaveCourse method', () => {
+    let changes: Partial<Course>
+     beforeEach(() => {
+    changes= {
       titles: {
         description: "Angular Testing Course 2",
         longDescription: "Updated course",
       },
     };
+   });
 
-    coursesSvc.saveCourse(courseId, changes).subscribe((course) => {
-      expect(course).toBeTruthy(`Course with id=${courseId} not found!`);
-      expect(course.id).toBe(courseId, "incorrect course returned!");
-      expect(course.titles.description).toBe(
-        changes.titles.description,
-        "incorrect title description returned!"
-      );
-      expect(course.titles.longDescription).toBe(
-        changes.titles.longDescription,
-        "incorrect title longDescription returned!"
-      );
+    it("should save course with changes", () => {
+      coursesSvc.saveCourse(courseId, changes).subscribe((course) => {
+        expect(course).toBeTruthy(`Course with id=${courseId} not found!`);
+        expect(course.id).toBe(courseId, "incorrect course returned!");
+        expect(course.titles.description).toBe(
+          changes.titles.description,
+          "incorrect title description returned!"
+        );
+        expect(course.titles.longDescription).toBe(
+          changes.titles.longDescription,
+          "incorrect title longDescription returned!"
+        );
+      });
+
+      const req = httpTestCtrl.expectOne(`${coursesSvc.courseUrl}/${courseId}`);
+      expect(req.request.method).toEqual("PUT");
+      expect(req.request.body).toBe(changes);
+      req.flush({ ...findCourseById(courseId), ...changes });
     });
 
-    const req = httpTestCtrl.expectOne(`${coursesSvc.courseUrl}/${courseId}`);
-    expect(req.request.method).toEqual("PUT");
-    expect(req.request.body).toBe(changes);
-    req.flush({ ...findCourseById(courseId), ...changes });
-  });
+    it("should fail to save course with changes", () => {
+      coursesSvc.saveCourse(courseId, changes).subscribe(
+        () => {
+          fail("save course should not have succeeded");
+        },
+        (error: HttpErrorResponse) => {
+          expect(error.status).toBe(500);
+        }
+      );
 
-  it("should fail to save course with changes", () => {
-    const changes: Partial<Course> = {
-      titles: {
-        description: "Angular Testing Course 2",
-        longDescription: "Updated course",
-      },
-    };
-
-    coursesSvc.saveCourse(courseId, changes).subscribe(
-      () => {
-        fail("save course should not have succeeded");
-      },
-      (error: HttpErrorResponse) => {
-        expect(error.status).toBe(500);
-      }
-    );
-
-    const req = httpTestCtrl.expectOne(`${coursesSvc.courseUrl}/${courseId}`);
-    expect(req.request.method).toEqual("PUT");
-    expect(req.request.body).toBe(changes);
-    req.flush("Save course failed.", {
-      status: 500,
-      statusText: "Internal Server Error",
+      const req = httpTestCtrl.expectOne(`${coursesSvc.courseUrl}/${courseId}`);
+      expect(req.request.method).toEqual("PUT");
+      expect(req.request.body).toBe(changes);
+      req.flush("Save course failed.", {
+        status: 500,
+        statusText: "Internal Server Error",
+      });
     });
   });
 
