@@ -5,12 +5,19 @@ import { CoursesCardListComponent } from "./courses-card-list.component";
 import { DebugElement } from "@angular/core";
 import { By } from "@angular/platform-browser";
 
-fdescribe("CoursesCardListComponent", () => {
+describe("CoursesCardListComponent", () => {
   let component: CoursesCardListComponent;
   let fixture: ComponentFixture<CoursesCardListComponent>;
   let el: DebugElement;
+  beforeAll(() => {
+    console.log(
+      "************started testing CoursesCardListComponent****************"
+    );
+  });
 
   beforeEach(async () => {
+    console.log("Calling BeforeEach");
+
     TestBed.configureTestingModule({
       imports: [CoursesModule],
     })
@@ -58,6 +65,12 @@ fdescribe("CoursesCardListComponent", () => {
     expect(content.nativeElement.textContent).toBe(
       course.titles.longDescription,
       "Incorrect course card content"
+    );
+  });
+
+  afterAll(() => {
+    console.log(
+      "************finished testing CoursesCardListComponent****************"
     );
   });
 });
