@@ -2,7 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { CalculatorService } from './calculator.service';
 import { LoggerService } from './logger.service';
 describe("CalculatorService", () => {
-  let calcSvc: CalculatorService, loggerSpy: any;
+  let calcSvc: CalculatorService;
+let loggerSvc:LoggerService;
 
   beforeAll(() => {
     console.log(
@@ -12,7 +13,7 @@ describe("CalculatorService", () => {
 
   beforeEach(() => {
     console.log("Calling BeforeEach");
-    loggerSpy = jasmine.createSpyObj("LoggerService", ["log"]);
+    const loggerSpy = jasmine.createSpyObj("LoggerService", ["log"]);
 
     TestBed.configureTestingModule({
       providers:[
@@ -22,6 +23,7 @@ describe("CalculatorService", () => {
     });
 
     calcSvc = TestBed.inject(CalculatorService);
+    loggerSvc=TestBed.inject(LoggerService);
   });
 
   it("should add two numbers", () => {
@@ -42,7 +44,7 @@ describe("CalculatorService", () => {
 
   afterEach(() => {
     console.log("Calling AfterEach");
-    expect(loggerSpy.log).toHaveBeenCalledTimes(1);
+    expect(loggerSvc.log).toHaveBeenCalledTimes(1);
   });
 
   afterAll(() => {
