@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { setupCourses } from "../common/setup-test-data";
 import { CoursesModule } from "../courses.module";
 import { CoursesCardListComponent } from "./courses-card-list.component";
@@ -15,7 +15,7 @@ describe("CoursesCardListComponent", () => {
     );
   });
 
-  beforeEach(async () => {
+  beforeEach(waitForAsync( () => {
     console.log("Calling BeforeEach");
 
     TestBed.configureTestingModule({
@@ -27,7 +27,7 @@ describe("CoursesCardListComponent", () => {
         component = fixture.componentInstance;
         el = fixture.debugElement;
       });
-  });
+  }));
 
   it("should create the component", () => {
     expect(component).toBeTruthy();

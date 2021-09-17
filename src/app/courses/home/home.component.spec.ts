@@ -1,6 +1,9 @@
 import {
   ComponentFixture,
+  fakeAsync,
+  flush,
   TestBed,
+  waitForAsync,
 } from "@angular/core/testing";
 import { CoursesModule } from "../courses.module";
 import { DebugElement } from "@angular/core";
@@ -9,7 +12,7 @@ import { HomeComponent } from "./home.component";
 import { CoursesService } from "../services/courses.service";
 import { setupCourses } from "../common/setup-test-data";
 import { By } from "@angular/platform-browser";
-import { of } from "rxjs";
+import { of, scheduled } from "rxjs";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { click } from "../common/test-utils";
 import { Course } from "../model/course";
@@ -27,8 +30,12 @@ describe("HomeComponent", () => {
   const advancedCourses: Course[] = allCourses.filter(
     (c) => c.category == "ADVANCED"
   );
+  beforeAll(() => {
+    console.log("************started testing HomeComponent****************");
+  });
 
-  beforeEach(async () => {
+  beforeEach(waitForAsync (() => {
+    console.log("Calling BeforeEach");
     const coursesSvcSpy = jasmine.createSpyObj("CoursesService", [
       "findAllCourses",
     ]);
@@ -41,9 +48,9 @@ describe("HomeComponent", () => {
         fixture = TestBed.createComponent(HomeComponent);
         component = fixture.componentInstance;
         el = fixture.debugElement;
-      });
     coursesSvc = TestBed.inject(CoursesService);
   });
+  }));
 
   it("should create the component", () => {
     expect(component).toBeTruthy();
@@ -73,7 +80,7 @@ describe("HomeComponent", () => {
     expect(tabs.length).toBe(2, "Unexpected number of tabs displyed!");
   });
 
-  it("should display appropriate courses when tab clicked", (done: DoneFn) => {
+  it("should display appropriate courses when tab clicked with DoneFn", (done: DoneFn) => {
     coursesSvc.findAllCourses.and.returnValue(of(allCourses));
     fixture.detectChanges();
 
@@ -116,5 +123,58 @@ describe("HomeComponent", () => {
         done();
       }, 500);
     }, 500);
+  });
+
+  it("should display appropriate courses when tab clicked with fakeAsync", fakeAsync(() => {
+    coursesSvc.findAllCourses.and.returnValue(of(allCourses));
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css(".mat-tab-label"));
+    let tabBody;
+    let cards;
+    let title;
+    let firstCourse;
+
+    click(tabs[1]); //advanced tab
+    fixture.detectChanges();
+
+    flush();
+    tabBody = el.query(By.css(".mat-tab-body-active"));
+      cards = tabBody.queryAll(By.css(".mat-card-title"));
+      title = cards[0];
+      firstCourse = advancedCourses[0];
+
+    expect(cards.length).toBe(
+      advancedCourses.length,
+      "Unexpected number of cards in Advanced courses tab!"
+    );
+    expect(title.nativeElement.textContent).toBe(
+      firstCourse.titles.description,
+      "Unexpected course title!"
+    );
+
+    click(tabs[0]); //beginners tab
+    fixture.detectChanges();
+
+    flush();
+      tabBody = el.query(By.css(".mat-tab-body-active"));
+      cards = tabBody.queryAll(By.css(".mat-card-title"));
+      title = cards[0];
+      firstCourse = beginnerCourses[0];
+
+    expect(cards.length).toBe(
+      beginnerCourses.length,
+      "Unexpected number of cards in Beginner courses tab!"
+    );
+    expect(title.nativeElement.textContent).toBe(
+      firstCourse.titles.description,
+      "Unexpected course title!"
+    );
+
+  }));
+
+
+  afterAll(() => {
+    console.log("************finished testing HomeComponent****************");
   });
 });
