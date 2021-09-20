@@ -8,6 +8,8 @@
     "server": "ts-node -P ./server/server.tsconfig.json ./server/server.ts",
     "build": "ng build",
     "test": "ng test --no-watch",
+    "test:coverage":"ng test --no-watch --code-coverage",
+    "show:coverage":"http-server ./coverage",
     "lint": "ng lint",
     "cypress:open": "npx cypress open",
     "cypress:run": "npx cypress run",
